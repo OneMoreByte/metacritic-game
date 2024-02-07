@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "metacritic-game"
+version = "0.1.0"
+description = ""
+authors = ["Jack Hildebrandt <jack@jackhil.de>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+beautifulsoup4 = "^4.12.3"
+requests = "^2.31.0"
+psycopg = {extras = ["binary"], version = "^3.1.18"}
+
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.1.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
