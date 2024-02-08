@@ -1,20 +1,24 @@
-from bs4 import BeautifulSoup
-import requests
 import logging
 from dataclasses import dataclass
 
+import requests
+from bs4 import BeautifulSoup
+from sqlalchemy.orm import DeclarativeBase, Mapped
+
 
 @dataclass
-class Game:
-    id: str
-    title: str
-    description: str
-    cover_img: str
-    platform: str
-    critic_str: str
-    metacritic_score: str
-    esrb_rating: str
-    game_url: str
+class Game(DeclarativeBase):
+    __tablename__ = "games"
+
+    id: Mapped[str]
+    title: Mapped[str]
+    description: Mapped[str]
+    cover_img: Mapped[str]
+    platform: Mapped[str]
+    critic_str: Mapped[str]
+    metacritic_score: Mapped[str]
+    esrb_rating: Mapped[str]
+    game_url: Mapped[str]
 
 
 class MetacriticScraper:
@@ -36,7 +40,8 @@ class MetacriticScraper:
             data.append((critic_str, critic_score, platform))
         return data
 
-    def get_games_paginated(self, page_num: int):
+    def get_games_paginated(self, page_num: int) -> list[Game]:
+        games = []
         url = f"{self.base_url}/browse/game/?releaseYearMin=1958&releaseYearMax=2024&platform=pc&platform=ps5&platform=xbox-series-x&platform=nintendo-switch&platform=mobile&platform=3ds&platform=dreamcast&platform=ds&platform=gba&platform=gamecube&platform=meta-quest&platform=nintendo-64&platform=ps1&platform=ps2&platform=xbox-one&platform=xbox-360&platform=xbox&platform=wii-u&platform=wii&platform=ps-vita&platform=psp&platform=ps3&platform=ps4"
         page = requests.get(url + f"&page={page_num}", headers=self.headers)
         soup = BeautifulSoup(page.content, "html.parser")
@@ -58,14 +63,17 @@ class MetacriticScraper:
             cover = r.find(class_="c-finderProductCard_img").find("img").attrs["src"]
             platforms = self.get_systems(page)
             for critic_str, critic_score, platform in platforms:
-                Game(
-                    id=page + platform,
-                    title=title,
-                    description=description,
-                    cover_img=cover,
-                    platform=platform,
-                    critic_str=critic_str,
-                    metacritic_score=critic_score,
-                    esrb_rating=rating,
-                    game_url=self.base_url + page,
+                games.append(
+                    Game(
+                        id=page + platform,
+                        title=title,
+                        description=description,
+                        cover_img=cover,
+                        platform=platform,
+                        critic_str=critic_str,
+                        metacritic_score=critic_score,
+                        esrb_rating=rating,
+                        game_url=self.base_url + page,
+                    )
                 )
+        return games
