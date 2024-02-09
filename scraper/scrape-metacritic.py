@@ -6,8 +6,13 @@ from bs4 import BeautifulSoup
 from sqlalchemy.orm import DeclarativeBase, Mapped
 
 
+class Base(DeclarativeBase):
+    # Why do I need to do this?
+    ...
+
+
 @dataclass
-class Game(DeclarativeBase):
+class Game(Base):
     __tablename__ = "games"
 
     id: Mapped[str]
