@@ -4,7 +4,12 @@ import styles from "./page.module.css";
 
 export default function App() {
   return (
-    <main className={styles.main}>
+    <main 
+      className={styles.main}
+      style={{
+        background: 'lightgrey'
+      }}
+    >
       <Home/>
     </main>
   );
