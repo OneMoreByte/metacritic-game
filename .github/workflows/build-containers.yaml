@@ -1,0 +1,42 @@
+---
+name: Build containers
+on:
+  push:
+    paths:
+      - scraper/**
+      - frontend/**
+      - backend/**
+
+jobs:
+  build-container:
+    name: Build containers
+    continue-on-error: true
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        component: [scraper, frontend, backend]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Get short hash
+        shell: bash
+        run: |
+          echo "SHA_SHORT=$(git rev-parse --short "$GITHUB_SHA")" >> "$GITHUB_ENV"
+      - name: build container ${{ matrix.component }}
+        id: build-container
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: ghcr.io/onemorebyte/metacritic-game-${{ matrix.component }}
+          tags: latest, ${{ env.SHA_SHORT }}
+          context: ${{ matrix.component }}
+          containerfiles: |
+            ./${{ matrix.component }}/Dockerfile
+
+      - name: push to image repo
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ steps.build-container.outputs.image }}
+          tags: ${{ steps.build-container.outputs.tags }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
