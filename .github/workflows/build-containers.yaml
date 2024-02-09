@@ -17,7 +17,7 @@ jobs:
       matrix:
         component: [scraper, frontend, backend]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Get short hash
         shell: bash
         run: |
