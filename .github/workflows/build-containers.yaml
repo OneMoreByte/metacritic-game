@@ -28,7 +28,7 @@ jobs:
         uses: redhat-actions/buildah-build@v2
         with:
           image: ghcr.io/onemorebyte/metacritic-game-${{ matrix.component }}
-          tags: latest, ${{ env.SHA_SHORT }}
+          tags: latest ${{ env.SHA_SHORT }}
           context: ${{ matrix.component }}
           containerfiles: |
             ./${{ matrix.component }}/Dockerfile
