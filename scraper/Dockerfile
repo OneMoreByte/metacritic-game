@@ -21,4 +21,4 @@ RUN addgroup --gid 1000 scraper
 RUN adduser scraper -h /app -u 1000 -G scraper -DH
 USER 1000
 
-CMD ["/app/.venv/bin/python", "-m", "scrape-metacritic"]
+CMD ["/app/.venv/bin/python", "-m", "scrape_metacritic"]

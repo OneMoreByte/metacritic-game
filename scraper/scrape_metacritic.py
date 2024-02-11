@@ -1,4 +1,6 @@
 import logging
+import time
+import os
 from dataclasses import dataclass
 
 import requests
@@ -12,26 +14,30 @@ class Base(DeclarativeBase):
 
 
 @dataclass
-class Game(Base):
+class Game:
     __tablename__ = "games"
 
-    id: Mapped[str]
-    title: Mapped[str]
-    description: Mapped[str]
-    cover_img: Mapped[str]
-    platform: Mapped[str]
-    critic_str: Mapped[str]
-    metacritic_score: Mapped[str]
-    esrb_rating: Mapped[str]
-    game_url: Mapped[str]
+    id: int  # Mapped[int]
+    title: str  # Mapped[str]
+    description: str  # Mapped[str]
+    cover_img: str  # Mapped[str]
+    platform: str  # Mapped[str]
+    critic_str: str  # Mapped[str]
+    metacritic_score: str  # Mapped[str]
+    esrb_rating: str  # Mapped[str]
+    game_url: str  # Mapped[str]
 
 
 class MetacriticScraper:
-    def __init__(self):
+    def __init__(self, db_user: str, db_pass: str, db_host: str):
         self.base_url = "https://www.metacritic.com"
+        # Metacritic rejects the requests User-Agent for some reason (probably abuse). We'll lie so it lets us in (and we'll be gentle :) )
         self.headers = {
             "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36"
         }
+        self.db_user = db_user
+        self.db_pass = db_pass
+        self.db_host = db_host
 
     def get_systems(self, href: str) -> list[tuple[str, str, str]]:
         page = requests.get(self.base_url + href, headers=self.headers)
@@ -47,8 +53,11 @@ class MetacriticScraper:
 
     def get_games_paginated(self, page_num: int) -> list[Game]:
         games = []
-        url = f"{self.base_url}/browse/game/?releaseYearMin=1958&releaseYearMax=2024&platform=pc&platform=ps5&platform=xbox-series-x&platform=nintendo-switch&platform=mobile&platform=3ds&platform=dreamcast&platform=ds&platform=gba&platform=gamecube&platform=meta-quest&platform=nintendo-64&platform=ps1&platform=ps2&platform=xbox-one&platform=xbox-360&platform=xbox&platform=wii-u&platform=wii&platform=ps-vita&platform=psp&platform=ps3&platform=ps4"
+        url = f"{self.base_url}/browse/game/?releaseYearMin=1958&releaseYearMax=2024"
         page = requests.get(url + f"&page={page_num}", headers=self.headers)
+        if page.status_code != 200:
+            logging.error("got bad response code from metacritic")
+            raise RuntimeError
         soup = BeautifulSoup(page.content, "html.parser")
         results = soup.find_all("div", class_="c-finderProductCard-game")
         logging.warning(f"looking at {len(results)} items")
@@ -82,3 +91,28 @@ class MetacriticScraper:
                     )
                 )
         return games
+
+    def get_max_page(self) -> int:
+        """Parses the bottom of the first results page to get the maximum number of pages"""
+        url = f"{self.base_url}/browse/game/?releaseYearMin=1958&releaseYearMax=2024"
+        page = requests.get(url, headers=self.headers)
+        if page.status_code != 200:
+            logging.error("got bad response code from metacritic")
+            raise RuntimeError
+        soup = BeautifulSoup(page.content, "html.parser")
+        pages_span = soup.find("span", class_="c-navigationPagination_pages")
+        pages = int(pages_span.contents[-1].text.strip())
+        logging.info(f"Found {pages} pages to parse")
+        return pages
+
+    def run(self):
+        page_end = self.get_max_page()
+        for i in range(page_end):
+            self.get_games_paginated(i)
+
+
+if __name__ == "__main__":
+    db_user = os.getenv("SQL_USER", "")
+    db_pass = os.getenv("SQL_PASS", "")
+    db_host = os.getenv("SQL_HOST", "")
+    MetacriticScraper(db_user, db_pass, db_host).run()
