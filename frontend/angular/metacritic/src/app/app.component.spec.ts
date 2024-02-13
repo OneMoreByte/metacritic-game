@@ -42,6 +42,20 @@ describe('AppComponent', () => {
     expect(fixture.componentInstance.form.get('textBoxes')?.value[0]).toEqual("Henry")
   });
 
+  it('should initialize new players with 0 score', () => {
+    // Initial change detection
+    const fixture = TestBed.createComponent(AppComponent);
+    const debugElement = fixture.debugElement;
+    fixture.detectChanges();
+
+    //Click button and run change detection again
+    const addPlayerButton = debugElement.query(By.css('button#addPlayer'));
+    addPlayerButton.triggerEventHandler('click', null);
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.aggregateScore[0]).toEqual(0)
+  });
+
   it('should update aggregate score on submit', () => {
     // Set tests to "unroll"
     const testCases = [7, 3.0, 9.0];
@@ -62,7 +76,7 @@ describe('AppComponent', () => {
       debugElement.query(By.css('button#submit')).triggerEventHandler('click', null);
       fixture.detectChanges();
       const app: AppComponent = fixture.componentInstance;
-      expect(app.aggregateScore).toEqual(scoreGuess);
+      expect(app.aggregateScore[0]).toEqual(scoreGuess);
     });
   });
 });

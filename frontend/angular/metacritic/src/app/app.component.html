@@ -18,7 +18,7 @@
           <div formArrayName="textBoxes" [ngStyle]="boxStyles">
             <label>Total Score</label>
             <div *ngFor="let name of textBoxes.controls; index as i">
-              <label>{{name.getRawValue()}}:</label>
+              <label>{{aggregateScore[i]}}</label>
             </div>
           </div>
         </div>

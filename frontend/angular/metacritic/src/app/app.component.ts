@@ -13,7 +13,7 @@ import {NgForOf, NgStyle} from "@angular/common";
 
 export class AppComponent {
   title = 'metacritic';
-  aggregateScore: number = 7.0;
+  aggregateScore: number[] = [];
   form: FormGroup;
   boxStyles = {
     'width': '50%',
@@ -43,12 +43,12 @@ export class AppComponent {
   addTextBox() {
     this.textBoxes.push(this.fb.control(''));
     this.scoreBoxes.push(this.fb.control(''));
+    this.aggregateScore.push(0);
   }
 
   onSubmit() {
-    let iteration = 0;
-    this.scoreBoxes.controls.forEach((score) => {
-      this.aggregateScore = parseFloat(score.value);
+    this.scoreBoxes.controls.forEach((score, index) => {
+      this.aggregateScore[index] = parseFloat(score.value);
     });
   }
 }
