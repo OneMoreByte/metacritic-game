@@ -46,6 +46,9 @@ export class AppComponent {
   }
 
   onSubmit() {
-    console.log("I'm submitting something for real");
+    let iteration = 0;
+    this.scoreBoxes.controls.forEach((score) => {
+      this.aggregateScore = parseFloat(score.value);
+    });
   }
 }
