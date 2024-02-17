@@ -2,7 +2,7 @@
 name = "scrape-metacritic"
 version = "0.1.0"
 description = ""
-authors = ["Jack Hildebrandt <jack@jackhil.de>"]
+authors = ["Jack Hildebrandt <jack@jackhil.de>","Milien McDermott <mcder018@live.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
