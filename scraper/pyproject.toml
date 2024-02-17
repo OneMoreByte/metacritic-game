@@ -4,6 +4,7 @@ version = "0.1.0"
 description = ""
 authors = ["Jack Hildebrandt <jack@jackhil.de>","Milien McDermott <mcder018@live.com>"]
 readme = "README.md"
+packages = [{include = "scraper-metacritic", from="src"}]
 
 [tool.poetry.dependencies]
 python = "^3.11"
