@@ -5,27 +5,19 @@ from dataclasses import dataclass
 
 import requests
 from bs4 import BeautifulSoup
-from sqlalchemy.orm import DeclarativeBase, Mapped
-
-
-class Base(DeclarativeBase):
-    # Why do I need to do this?
-    ...
 
 
 @dataclass
 class Game:
-    __tablename__ = "games"
-
-    id: int  # Mapped[int]
-    title: str  # Mapped[str]
-    description: str  # Mapped[str]
-    cover_img: str  # Mapped[str]
-    platform: str  # Mapped[str]
-    critic_str: str  # Mapped[str]
-    metacritic_score: str  # Mapped[str]
-    esrb_rating: str  # Mapped[str]
-    game_url: str  # Mapped[str]
+    id: int 
+    title: str 
+    description: str 
+    cover_img: str 
+    platform: str 
+    critic_str: str 
+    metacritic_score: str 
+    esrb_rating: str 
+    game_url: str 
 
 
 class MetacriticScraper:
